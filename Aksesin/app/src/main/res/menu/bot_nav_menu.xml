@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/homeFragment"
+        android:title="@string/maps"
+        android:icon="@drawable/ic_pin_home"/>
+
+    <item
+        android:id="@+id/historyFragment"
+        android:title="@string/history"
+        android:icon="@drawable/ic_pin_history"/>
+
+    <item
+        android:id="@+id/infoFragment"
+        android:title="@string/info"
+        android:icon="@drawable/ic_info"/>
+
+</menu>
