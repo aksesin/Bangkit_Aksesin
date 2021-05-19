@@ -48,6 +48,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        getDeviceLocation()
+    }
+
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
 
@@ -55,45 +60,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
         getLocationPermission()
 
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun getDeviceLocation() {
-        try {
-            if (isLocationPermissionGranted) {
-                val locationResult = fusedLocationProviderClient.lastLocation
-                locationResult.addOnSuccessListener { location: Location? ->
-                    if (location != null) {
-                        lastKnownLocation = location
-                        lastKnownLocation?.let {
-                            val currLocation = LatLng(it.latitude, it.longitude)
-                            map.moveCamera(
-                                CameraUpdateFactory.newLatLngZoom(
-                                    currLocation,
-                                    DEFAULT_ZOOM.toFloat()
-                                )
-                            )
-                        }
-
-
-                    } else {
-                        lastKnownLocation?.let {
-                            val currLocation = LatLng(it.latitude, it.longitude)
-                            map.moveCamera(
-                                CameraUpdateFactory.newLatLngZoom(
-                                    currLocation,
-                                    DEFAULT_ZOOM.toFloat()
-                                )
-                            )
-                        }
-                        requestPermission()
-                    }
-
-                }
-            }
-        } catch (e: SecurityException) {
-            Log.e("Exception: %s", e.message, e)
-        }
     }
 
     override fun onRequestPermissionsResult(
@@ -109,6 +75,40 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
                 isLocationPermissionGranted = isGrantResultProvided && isGrantResultGranted
             }
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getDeviceLocation() {
+        try {
+            if (isLocationPermissionGranted) {
+                val locationResult = fusedLocationProviderClient.lastLocation
+                locationResult.addOnSuccessListener { location: Location? ->
+                    if (location != null) {
+                        lastKnownLocation = location
+                        lastKnownLocation?.let { currLocation ->
+                            moveCamera(currLocation)
+                        }
+                    } else {
+                        lastKnownLocation?.let { currLocation ->
+                            moveCamera(currLocation)
+                        }
+                        requestPermission()
+                    }
+                }
+            }
+        } catch (e: SecurityException) {
+            Log.e("Exception: %s", e.message, e)
+        }
+    }
+
+    private fun moveCamera(location: Location) {
+        val currLocation = LatLng(location.latitude, location.longitude)
+        map.moveCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                currLocation,
+                DEFAULT_ZOOM.toFloat()
+            )
+        )
     }
 
     @SuppressLint("MissingPermission")
@@ -136,6 +136,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
     companion object {
         private const val PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 1
+
         private const val DEFAULT_ZOOM = 15
 
         private val defaultLocation = LatLng(-6.21462, 106.84513)
