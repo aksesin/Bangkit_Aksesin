@@ -77,8 +77,15 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
 
                     } else {
-                        Log.d("HomeFragment", "Current location is null. Using defaults.")
-                        Log.e("HomeFragment", "Exception: %s")
+                        lastKnownLocation?.let {
+                            val currLocation = LatLng(it.latitude, it.longitude)
+                            map.moveCamera(
+                                CameraUpdateFactory.newLatLngZoom(
+                                    currLocation,
+                                    DEFAULT_ZOOM.toFloat()
+                                )
+                            )
+                        }
                         requestPermission()
                     }
 
