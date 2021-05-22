@@ -1,6 +1,9 @@
 package com.bangkit.aksesin.core.di
 
+import com.bangkit.aksesin.core.data.MapRepository
+import com.bangkit.aksesin.core.data.source.remote.PlacesRemoteDataSource
 import com.bangkit.aksesin.core.data.source.remote.network.PlacesApiService
+import com.bangkit.aksesin.core.domain.repository.IMapRepository
 import com.bangkit.aksesin.core.utils.Constants.BASE_URL
 import com.bangkit.aksesin.core.utils.Constants.REQUEST_TIMEOUT
 import okhttp3.OkHttpClient
@@ -9,6 +12,11 @@ import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+
+val repositoryModule = module {
+    single { PlacesRemoteDataSource(get()) }
+    single<IMapRepository> { MapRepository(get()) }
+}
 
 val networkModule = module {
     single {

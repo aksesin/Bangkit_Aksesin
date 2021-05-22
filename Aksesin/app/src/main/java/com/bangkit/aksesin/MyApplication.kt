@@ -2,6 +2,9 @@ package com.bangkit.aksesin
 
 import android.app.Application
 import com.bangkit.aksesin.core.di.networkModule
+import com.bangkit.aksesin.core.di.repositoryModule
+import com.bangkit.aksesin.di.useCaseModule
+import com.bangkit.aksesin.di.viewModelModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -12,10 +15,12 @@ class MyApplication : Application() {
         super.onCreate()
         startKoin {
             androidLogger(Level.NONE)
-            androidContext(this@MyApplication)
             modules(
                 listOf(
-                    networkModule
+                    repositoryModule,
+                    networkModule,
+                    useCaseModule,
+                    viewModelModule
                 )
             )
         }
