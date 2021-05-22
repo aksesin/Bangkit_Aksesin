@@ -4,16 +4,20 @@ package com.bangkit.aksesin.ui.home
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bangkit.aksesin.R
 import com.bangkit.aksesin.databinding.FragmentHomeBinding
 import com.bangkit.aksesin.ui.base.BaseFragment
+import com.bangkit.aksesin.ui.search.SearchActivity
+import com.bangkit.aksesin.ui.search.SearchActivity.Companion.EXTRA_CURR_LOCATION
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -21,8 +25,11 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 
 
+@ObsoleteCoroutinesApi
 class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate),
     OnMapReadyCallback {
 
@@ -33,6 +40,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     private var lastKnownLocation: Location? = null
 
     private var isLocationPermissionGranted = false
+
+    private var place: com.bangkit.aksesin.core.domain.model.Location? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -46,10 +55,21 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         binding.fabMyLocation.setOnClickListener {
             getDeviceLocation()
         }
+
+        getDeviceLocation()
+
+        binding.svLocation.setOnClickListener {
+            val intent = Intent(activity, SearchActivity::class.java)
+            intent.putExtra(EXTRA_CURR_LOCATION, place)
+            startActivity(intent)
+        }
     }
 
     override fun onResume() {
         super.onResume()
+        val navBar =
+            (activity as AppCompatActivity).findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        navBar.visibility = View.VISIBLE
         getDeviceLocation()
     }
 
@@ -77,6 +97,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
     @SuppressLint("MissingPermission")
     private fun getDeviceLocation() {
         try {
@@ -86,10 +110,18 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
                     if (location != null) {
                         lastKnownLocation = location
                         lastKnownLocation?.let { currLocation ->
+                            place = com.bangkit.aksesin.core.domain.model.Location(
+                                currLocation.latitude,
+                                currLocation.longitude
+                            )
                             moveCamera(currLocation)
                         }
                     } else {
                         lastKnownLocation?.let { currLocation ->
+                            place = com.bangkit.aksesin.core.domain.model.Location(
+                                currLocation.latitude,
+                                currLocation.longitude
+                            )
                             moveCamera(currLocation)
                         }
                         requestPermission()
