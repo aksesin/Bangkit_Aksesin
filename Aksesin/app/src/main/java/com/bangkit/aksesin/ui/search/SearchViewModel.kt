@@ -1,7 +1,17 @@
 package com.bangkit.aksesin.ui.search
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
+import com.bangkit.aksesin.core.domain.usecase.IMapUseCase
+import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 
-class SearchViewModel : ViewModel() {
+@Suppress("DEPRECATION")
+@ObsoleteCoroutinesApi
+class SearchViewModel(private val useCase: IMapUseCase) : ViewModel() {
+
+    fun searchPlace(input: String, origin: LatLng) =
+        useCase.searchPlaces(input, origin).asLiveData(viewModelScope.coroutineContext)
 
 }
