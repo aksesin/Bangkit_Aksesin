@@ -1,7 +1,6 @@
 package com.bangkit.aksesin.core.data.source.remote.network
 
 import com.bangkit.aksesin.BuildConfig.MAPS_API_KEY
-import com.bangkit.aksesin.BuildConfig.PLACES_API_KEY
 import com.bangkit.aksesin.core.data.source.remote.response.PlaceDetailResponse
 import com.bangkit.aksesin.core.data.source.remote.response.PlacesResponse
 import com.bangkit.aksesin.core.utils.Constants.FIELDS
