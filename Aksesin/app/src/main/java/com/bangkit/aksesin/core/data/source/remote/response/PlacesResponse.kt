@@ -8,7 +8,7 @@ data class PlacesResponse(
 )
 
 data class Prediction(
-    @field:SerializedName("descriptions")
+    @field:SerializedName("description")
     val desc: String? = "",
 
     @field:SerializedName("distance_meters")

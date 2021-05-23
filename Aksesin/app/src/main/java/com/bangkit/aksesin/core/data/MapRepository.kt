@@ -6,7 +6,6 @@ import com.bangkit.aksesin.core.domain.model.Place
 import com.bangkit.aksesin.core.domain.repository.IMapRepository
 import com.bangkit.aksesin.core.utils.toListPlaces
 import com.bangkit.aksesin.core.utils.toPlace
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
@@ -15,7 +14,7 @@ import kotlinx.coroutines.flow.flow
 @Suppress("UNCHECKED_CAST")
 class MapRepository(private val remoteDataSource: PlacesRemoteDataSource) : IMapRepository {
 
-    override fun searchPlaces(input: String, origin: LatLng): Flow<Resource<List<Place>>> {
+    override fun searchPlaces(input: String, origin: String): Flow<Resource<List<Place>>> {
         return flow {
             emit(Resource.Loading())
             when (val response = remoteDataSource.searchPlaces(input, origin).first()) {

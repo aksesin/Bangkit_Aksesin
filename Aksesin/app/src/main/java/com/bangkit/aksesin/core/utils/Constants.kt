@@ -7,4 +7,8 @@ object Constants {
     const val BASE_URL = "https://maps.googleapis.com/maps/api/place/"
 
     const val REQUEST_TIMEOUT = 30L
+
+    const val INDONESIA = "id"
+
+    const val OUTPUT_AS_JSON = "json"
 }

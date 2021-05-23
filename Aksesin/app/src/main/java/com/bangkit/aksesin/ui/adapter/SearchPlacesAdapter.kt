@@ -3,6 +3,7 @@ package com.bangkit.aksesin.ui.adapter
 import com.bangkit.aksesin.R
 import com.bangkit.aksesin.core.domain.model.Place
 import com.bangkit.aksesin.databinding.ItemLocationBinding
+import com.bangkit.aksesin.ui.util.toKmString
 
 class SearchPlacesAdapter : BaseAdapter<Place>(R.layout.item_location) {
 
@@ -10,8 +11,8 @@ class SearchPlacesAdapter : BaseAdapter<Place>(R.layout.item_location) {
         val place = data[position]
         val binding = ItemLocationBinding.bind(holder.itemView)
         with(binding) {
-            tvTitleLocation.text = place.name
-            tvDistance.text = place.distanceMeters.toString()
+            tvTitleLocation.text = place.desc
+            tvDistance.text = place.distanceMeters.toKmString()
             tvDescLocation.text = place.address
 
             root.setOnClickListener {

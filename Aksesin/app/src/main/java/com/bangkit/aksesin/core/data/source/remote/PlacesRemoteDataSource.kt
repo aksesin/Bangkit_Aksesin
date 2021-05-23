@@ -4,7 +4,6 @@ import com.bangkit.aksesin.core.data.source.remote.network.ApiResponse
 import com.bangkit.aksesin.core.data.source.remote.network.PlacesApiService
 import com.bangkit.aksesin.core.data.source.remote.response.Prediction
 import com.bangkit.aksesin.core.data.source.remote.response.Result
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -13,7 +12,7 @@ import kotlinx.coroutines.flow.flowOn
 
 class PlacesRemoteDataSource(private val apiService: PlacesApiService) {
 
-    suspend fun searchPlaces(input: String, origin: LatLng): Flow<ApiResponse<List<Prediction>>> {
+    suspend fun searchPlaces(input: String, origin: String): Flow<ApiResponse<List<Prediction>>> {
         return flow {
             val response = apiService.searchPlaces(input = input, origin = origin)
             val data = response.predictions
