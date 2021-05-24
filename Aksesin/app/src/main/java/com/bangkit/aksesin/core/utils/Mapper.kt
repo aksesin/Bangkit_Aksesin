@@ -1,7 +1,11 @@
 package com.bangkit.aksesin.core.utils
 
+import com.bangkit.aksesin.core.data.source.remote.response.GeometryResponse
+import com.bangkit.aksesin.core.data.source.remote.response.LocationResponse
 import com.bangkit.aksesin.core.data.source.remote.response.Prediction
 import com.bangkit.aksesin.core.data.source.remote.response.Result
+import com.bangkit.aksesin.core.domain.model.Geometry
+import com.bangkit.aksesin.core.domain.model.Location
 import com.bangkit.aksesin.core.domain.model.Place
 
 fun List<Prediction>.toListPlaces(): List<Place> {
@@ -22,5 +26,13 @@ fun Result.toPlace() = Place(
     name = this.name,
     placeId = this.placeId,
     address = this.address,
-    geometry = this.geometry
+    geometry = this.geometry.toGeometry()
+)
+
+fun GeometryResponse.toGeometry() = Geometry(
+    this.location.toLocation()
+)
+
+fun LocationResponse.toLocation() = Location(
+    this.lat, this.lng
 )
