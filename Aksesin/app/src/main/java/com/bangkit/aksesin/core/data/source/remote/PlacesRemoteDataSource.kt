@@ -15,7 +15,7 @@ class PlacesRemoteDataSource(private val apiService: PlacesApiService) {
     suspend fun searchPlaces(input: String, origin: String): Flow<ApiResponse<List<Prediction>>> {
         return flow {
             val response = apiService.searchPlaces(input = input, origin = origin)
-            val data = response.predictions
+            val data = response.predictions.subList(0, 5)
             if (data.isNotEmpty()) {
                 emit(ApiResponse.Success(data))
             } else {
@@ -26,7 +26,7 @@ class PlacesRemoteDataSource(private val apiService: PlacesApiService) {
         }.flowOn(Dispatchers.IO)
     }
 
-    suspend fun getDetailPlace(placeId: String): Flow<ApiResponse<Result>> {
+    suspend fun getDetailPlace(placeId: String?): Flow<ApiResponse<Result>> {
         return flow {
             val response = apiService.getDetailPlace(placeId = placeId)
             val data = response.result

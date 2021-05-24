@@ -1,9 +1,11 @@
 package com.bangkit.aksesin.core.data
 
+import android.util.Log
 import com.bangkit.aksesin.core.data.source.remote.PlacesRemoteDataSource
 import com.bangkit.aksesin.core.data.source.remote.network.ApiResponse
 import com.bangkit.aksesin.core.domain.model.Place
 import com.bangkit.aksesin.core.domain.repository.IMapRepository
+import com.bangkit.aksesin.core.utils.toGeometry
 import com.bangkit.aksesin.core.utils.toListPlaces
 import com.bangkit.aksesin.core.utils.toPlace
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +22,29 @@ class MapRepository(private val remoteDataSource: PlacesRemoteDataSource) : IMap
             when (val response = remoteDataSource.searchPlaces(input, origin).first()) {
                 is ApiResponse.Success -> {
                     val result = response.data.toListPlaces()
+                    result.map { place ->
+                        remoteDataSource.getDetailPlace(place.placeId).collect { apiResponse ->
+                            when (apiResponse) {
+                                is ApiResponse.Success -> {
+                                    val detail = apiResponse.data
+                                    place.apply {
+                                        address = detail.address
+                                        name = detail.name
+                                        geometry = detail.geometry.toGeometry()
+                                    }
+                                }
+                                is ApiResponse.Empty -> {
+                                    place.apply {
+                                        address = ""
+                                        name = ""
+                                    }
+                                }
+                                is ApiResponse.Error -> {
+                                    Log.d("searchPlaces", "Message: ${apiResponse.message}")
+                                }
+                            }
+                        }
+                    }
                     emit(Resource.Success(result))
                 }
                 is ApiResponse.Error -> emit(Resource.Error(null, response.message))

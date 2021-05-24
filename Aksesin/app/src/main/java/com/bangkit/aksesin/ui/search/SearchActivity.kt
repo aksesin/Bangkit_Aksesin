@@ -2,9 +2,12 @@ package com.bangkit.aksesin.ui.search
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bangkit.aksesin.R
 import com.bangkit.aksesin.core.data.Resource
 import com.bangkit.aksesin.core.domain.model.Location
 import com.bangkit.aksesin.databinding.ActivitySearchBinding
@@ -58,20 +61,32 @@ class SearchActivity : BaseActivity<ActivitySearchBinding>() {
                 job?.cancel()
                 job = lifecycleScope.launch {
                     delay(500)
-                    viewModel.searchPlace(newText, getPlace)
-                        .observe(this@SearchActivity) { resource ->
-                            when (resource) {
-                                is Resource.Success -> {
-                                    searchAdapter.setData(resource.data)
-                                }
-                                is Resource.Error -> Unit
-                                is Resource.Loading -> Unit
-                            }
-                        }
+                    binding.progressBar.visibility = View.VISIBLE
+                    subscribeToObserver(newText, getPlace)
                 }
                 return true
             }
         })
+    }
+
+    private fun subscribeToObserver(newText: String, place: String) {
+        viewModel.searchPlace(newText, place)
+            .observe(this@SearchActivity) { resource ->
+                when (resource) {
+                    is Resource.Success -> {
+                        binding.progressBar.visibility = View.GONE
+                        val data = resource.data
+                        if (data.isNullOrEmpty()) {
+                            Toast.makeText(this, getString(R.string.not_found), Toast.LENGTH_SHORT)
+                                .show()
+                        } else searchAdapter.setData(data)
+                    }
+                    is Resource.Error -> {
+                        binding.progressBar.visibility = View.GONE
+                    }
+                    is Resource.Loading -> binding.progressBar.visibility = View.VISIBLE
+                }
+            }
     }
 
     private fun onItemClicked() {

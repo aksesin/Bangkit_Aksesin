@@ -53,6 +53,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireContext())
 
+        binding.btnNavigation.isEnabled = false
+
         binding.fabMyLocation.setOnClickListener {
             getDeviceLocation()
         }

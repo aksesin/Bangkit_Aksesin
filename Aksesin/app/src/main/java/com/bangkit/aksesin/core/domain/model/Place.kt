@@ -13,11 +13,11 @@ data class Place(
 
     val reference: String? = "",
 
-    val address: String? = "",
+    var address: String? = "",
 
-    val geometry: Geometry? = null,
+    var geometry: Geometry? = null,
 
-    val name: String? = ""
+    var name: String? = ""
 )
 
 data class Geometry(
