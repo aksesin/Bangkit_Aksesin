@@ -7,12 +7,12 @@ data class PlaceDetailResponse(
     val result: Result
 )
 
-data class Geometry(
+data class GeometryResponse(
     @field:SerializedName("location")
-    val location: Location
+    val location: LocationResponse
 )
 
-data class Location(
+data class LocationResponse(
     @field:SerializedName("lat")
     val lat: Double = 0.0,
 
@@ -25,7 +25,7 @@ data class Result(
     val address: String? = "",
 
     @field:SerializedName("geometry")
-    val geometry: Geometry,
+    val geometry: GeometryResponse,
 
     @field:SerializedName("name")
     val name: String? = "",

@@ -1,6 +1,8 @@
 package com.bangkit.aksesin.core.domain.model
 
-import com.bangkit.aksesin.core.data.source.remote.response.Geometry
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
 
 data class Place(
     val desc: String? = "",
@@ -17,3 +19,14 @@ data class Place(
 
     val name: String? = ""
 )
+
+data class Geometry(
+    val location: Location
+)
+
+@Parcelize
+data class Location(
+    val lat: Double = 0.0,
+
+    val lng: Double = 0.0
+) : Parcelable
