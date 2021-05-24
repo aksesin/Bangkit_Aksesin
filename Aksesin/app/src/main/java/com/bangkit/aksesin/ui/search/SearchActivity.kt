@@ -1,19 +1,17 @@
 package com.bangkit.aksesin.ui.search
 
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bangkit.aksesin.R
 import com.bangkit.aksesin.core.data.Resource
 import com.bangkit.aksesin.core.domain.model.Location
 import com.bangkit.aksesin.databinding.ActivitySearchBinding
 import com.bangkit.aksesin.ui.adapter.SearchPlacesAdapter
 import com.bangkit.aksesin.ui.base.BaseActivity
+import com.bangkit.aksesin.ui.home.HomeFragment.Companion.RESULT_SEARCH
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.delay
@@ -29,6 +27,8 @@ class SearchActivity : BaseActivity<ActivitySearchBinding>() {
 
     override fun getViewBinding() = ActivitySearchBinding.inflate(layoutInflater)
 
+    private var destination: Location? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -39,6 +39,8 @@ class SearchActivity : BaseActivity<ActivitySearchBinding>() {
         binding.imgBack.setOnClickListener {
             finish()
         }
+
+        onItemClicked()
     }
 
     private fun searchPlaces() {
@@ -63,15 +65,24 @@ class SearchActivity : BaseActivity<ActivitySearchBinding>() {
                                     searchAdapter.setData(resource.data)
                                 }
                                 is Resource.Error -> Unit
-                                is Resource.Loading -> {
-                                    Log.d("SearchActivity", "Message : ${resource.message}")
-                                }
+                                is Resource.Loading -> Unit
                             }
                         }
                 }
                 return true
             }
         })
+    }
+
+    private fun onItemClicked() {
+        searchAdapter.onItemClickListener = { selectedItem ->
+            destination = selectedItem.geometry?.location
+            val intent = Intent().apply {
+                putExtra(EXTRA_DESTINATION, destination)
+            }
+            setResult(RESULT_SEARCH, intent)
+            finish()
+        }
     }
 
     private fun setupRecyclerView() = binding.rvSearch.apply {
@@ -83,5 +94,7 @@ class SearchActivity : BaseActivity<ActivitySearchBinding>() {
 
     companion object {
         const val EXTRA_CURR_LOCATION = "curr_location"
+
+        const val EXTRA_DESTINATION = "destination"
     }
 }

@@ -18,6 +18,7 @@ import com.bangkit.aksesin.databinding.FragmentHomeBinding
 import com.bangkit.aksesin.ui.base.BaseFragment
 import com.bangkit.aksesin.ui.search.SearchActivity
 import com.bangkit.aksesin.ui.search.SearchActivity.Companion.EXTRA_CURR_LOCATION
+import com.bangkit.aksesin.ui.search.SearchActivity.Companion.EXTRA_DESTINATION
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -56,13 +57,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
             getDeviceLocation()
         }
 
-        getDeviceLocation()
-
-        binding.svLocation.setOnClickListener {
-            val intent = Intent(activity, SearchActivity::class.java)
-            intent.putExtra(EXTRA_CURR_LOCATION, place)
-            startActivity(intent)
-        }
+        navigateToSearchActivity()
     }
 
     override fun onResume() {
@@ -76,9 +71,18 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
 
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, DEFAULT_ZOOM.toFloat()))
-
         getLocationPermission()
+
+        if (isLocationPermissionGranted) {
+            getDeviceLocation()
+        } else {
+            map.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    defaultLocation,
+                    DEFAULT_ZOOM.toFloat()
+                )
+            )
+        }
 
     }
 
@@ -99,6 +103,24 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        if (data != null) {
+            val isAlreadySearch = resultCode == RESULT_SEARCH
+            val isRequestSearch = requestCode == REQUEST_SEARCH
+            if (isRequestSearch && isAlreadySearch) {
+                binding.btnNavigation.isEnabled = true
+                place = data.getParcelableExtra(EXTRA_DESTINATION)
+            }
+        } else {
+            binding.btnNavigation.isEnabled = false
+        }
+    }
+
+    private fun navigateToSearchActivity() {
+        binding.svLocation.setOnClickListener {
+            val intent = Intent(activity, SearchActivity::class.java)
+            intent.putExtra(EXTRA_CURR_LOCATION, place)
+            startActivityForResult(intent, REQUEST_SEARCH)
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -172,5 +194,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         private const val DEFAULT_ZOOM = 15
 
         private val defaultLocation = LatLng(-6.21462, 106.84513)
+
+        const val REQUEST_SEARCH = 1
+
+        const val RESULT_SEARCH = 2
     }
 }
