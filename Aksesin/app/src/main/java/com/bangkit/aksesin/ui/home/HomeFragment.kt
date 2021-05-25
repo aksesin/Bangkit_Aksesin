@@ -7,6 +7,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -14,11 +15,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bangkit.aksesin.R
+import com.bangkit.aksesin.core.data.Resource
 import com.bangkit.aksesin.databinding.FragmentHomeBinding
 import com.bangkit.aksesin.ui.base.BaseFragment
 import com.bangkit.aksesin.ui.search.SearchActivity
 import com.bangkit.aksesin.ui.search.SearchActivity.Companion.EXTRA_CURR_LOCATION
 import com.bangkit.aksesin.ui.search.SearchActivity.Companion.EXTRA_DESTINATION
+import com.bangkit.aksesin.ui.util.PolyUtil
+import com.bangkit.aksesin.ui.util.toLatLngString
+import com.bangkit.aksesin.ui.util.toLatLng
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -26,8 +31,11 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.ObsoleteCoroutinesApi
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 @ObsoleteCoroutinesApi
@@ -42,7 +50,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
     private var isLocationPermissionGranted = false
 
-    private var place: com.bangkit.aksesin.core.domain.model.Location? = null
+    private val viewModel: HomeViewModel by viewModel()
+
+    private var userLocation: com.bangkit.aksesin.core.domain.model.Location? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -110,17 +120,75 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
             val isRequestSearch = requestCode == REQUEST_SEARCH
             if (isRequestSearch && isAlreadySearch) {
                 binding.btnNavigation.isEnabled = true
-                place = data.getParcelableExtra(EXTRA_DESTINATION)
+                val extraDestination =
+                    data.getParcelableExtra<com.bangkit.aksesin.core.domain.model.Location>(
+                        EXTRA_DESTINATION
+                    )
+                val destination =
+                    LatLng(extraDestination!!.lat, extraDestination.lng).toLatLngString()
+                val origin = LatLng(userLocation!!.lat, userLocation!!.lng).toLatLngString()
+                subscribeToObserver(origin, destination)
+                startNavigation(destination.toLatLng())
             }
         } else {
             binding.btnNavigation.isEnabled = false
         }
     }
 
+    private fun subscribeToObserver(origin: String, destination: String) {
+        viewModel.getDirections(origin, destination).observe(viewLifecycleOwner) { resource ->
+            when (resource) {
+                is Resource.Success -> {
+                    binding.progressBar.visibility = View.GONE
+                    val data = resource.data
+                    val polyline = data?.get(0)?.overviewPolyline?.point
+                    polyline?.let {
+                        showDirections(it, destination.toLatLng())
+                    }
+
+                }
+                is Resource.Loading -> binding.progressBar.visibility = View.VISIBLE
+                is Resource.Error -> {
+                    binding.progressBar.visibility = View.GONE
+                    Log.d("HomeFragment", "Message: ${resource.message}")
+                }
+            }
+        }
+    }
+
+    private fun startNavigation(endPosition: LatLng) {
+        binding.btnNavigation.setOnClickListener {
+            val gmmIntentUri = Uri.parse("google.navigation:q=${endPosition.toLatLngString()}")
+            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+            mapIntent.setPackage("com.google.android.apps.maps")
+            startActivity(mapIntent)
+        }
+    }
+
+    private fun showDirections(polyline: String, endPosition: LatLng) {
+        if (polyline.isNotEmpty()) {
+            val poly = PolyUtil.decodeOverviewPolyLinePoints(polyline)
+            if (poly.isNotEmpty()) {
+                val lineOptions = PolylineOptions()
+                lineOptions.apply {
+                    addAll(poly)
+                    width(10F)
+                    color(ContextCompat.getColor(requireContext(), R.color.colorPrimary))
+                }
+
+                map.apply {
+                    clear()
+                    addPolyline(lineOptions)
+                    addMarker(MarkerOptions().position(endPosition))
+                }
+            }
+        }
+    }
+
     private fun navigateToSearchActivity() {
         binding.svLocation.setOnClickListener {
             val intent = Intent(activity, SearchActivity::class.java)
-            intent.putExtra(EXTRA_CURR_LOCATION, place)
+            intent.putExtra(EXTRA_CURR_LOCATION, userLocation)
             startActivityForResult(intent, REQUEST_SEARCH)
         }
     }
@@ -134,7 +202,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
                     if (location != null) {
                         lastKnownLocation = location
                         lastKnownLocation?.let { currLocation ->
-                            place = com.bangkit.aksesin.core.domain.model.Location(
+                            userLocation = com.bangkit.aksesin.core.domain.model.Location(
                                 currLocation.latitude,
                                 currLocation.longitude
                             )
@@ -142,7 +210,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
                         }
                     } else {
                         lastKnownLocation?.let { currLocation ->
-                            place = com.bangkit.aksesin.core.domain.model.Location(
+                            userLocation = com.bangkit.aksesin.core.domain.model.Location(
                                 currLocation.latitude,
                                 currLocation.longitude
                             )

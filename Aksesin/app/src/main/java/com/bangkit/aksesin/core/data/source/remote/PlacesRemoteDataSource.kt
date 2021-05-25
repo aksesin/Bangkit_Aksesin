@@ -4,6 +4,7 @@ import com.bangkit.aksesin.core.data.source.remote.network.ApiResponse
 import com.bangkit.aksesin.core.data.source.remote.network.PlacesApiService
 import com.bangkit.aksesin.core.data.source.remote.response.Prediction
 import com.bangkit.aksesin.core.data.source.remote.response.Result
+import com.bangkit.aksesin.core.data.source.remote.response.RouteResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -31,6 +32,23 @@ class PlacesRemoteDataSource(private val apiService: PlacesApiService) {
             val response = apiService.getDetailPlace(placeId = placeId)
             val data = response.result
             if (data.placeId != null) {
+                emit(ApiResponse.Success(data))
+            } else {
+                emit(ApiResponse.Empty)
+            }
+        }.catch { e ->
+            emit(ApiResponse.Error(e.message.toString()))
+        }.flowOn(Dispatchers.IO)
+    }
+
+    suspend fun getDirections(
+        origin: String,
+        destination: String
+    ): Flow<ApiResponse<List<RouteResponse>>> {
+        return flow {
+            val response = apiService.getDirections(origin = origin, destination = destination)
+            val data = response.routes
+            if (data.isNotEmpty()) {
                 emit(ApiResponse.Success(data))
             } else {
                 emit(ApiResponse.Empty)

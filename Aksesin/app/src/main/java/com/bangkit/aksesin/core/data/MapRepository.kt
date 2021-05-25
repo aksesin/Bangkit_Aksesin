@@ -4,9 +4,11 @@ import android.util.Log
 import com.bangkit.aksesin.core.data.source.remote.PlacesRemoteDataSource
 import com.bangkit.aksesin.core.data.source.remote.network.ApiResponse
 import com.bangkit.aksesin.core.domain.model.Place
+import com.bangkit.aksesin.core.domain.model.Route
 import com.bangkit.aksesin.core.domain.repository.IMapRepository
 import com.bangkit.aksesin.core.utils.toGeometry
 import com.bangkit.aksesin.core.utils.toListPlaces
+import com.bangkit.aksesin.core.utils.toListRoutes
 import com.bangkit.aksesin.core.utils.toPlace
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -64,5 +66,21 @@ class MapRepository(private val remoteDataSource: PlacesRemoteDataSource) : IMap
                 }
             }
         } as Flow<Resource<Place>>
+    }
+
+    override fun getDirections(
+        origin: String,
+        destination: String
+    ): Flow<Resource<List<Route>>> {
+        return flow {
+            emit(Resource.Loading())
+            remoteDataSource.getDirections(origin, destination).collect { response ->
+                when (response) {
+                    is ApiResponse.Success -> emit(Resource.Success(response.data.toListRoutes()))
+                    is ApiResponse.Empty -> emit(Resource.Success<List<Route>>(emptyList()))
+                    is ApiResponse.Error -> emit(Resource.Error(null, response.message))
+                }
+            }
+        } as Flow<Resource<List<Route>>>
     }
 }

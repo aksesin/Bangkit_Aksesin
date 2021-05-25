@@ -15,5 +15,5 @@ val useCaseModule = module {
 @ObsoleteCoroutinesApi
 val viewModelModule = module {
     viewModel { SearchViewModel(get()) }
-    viewModel { HomeViewModel() }
+    viewModel { HomeViewModel(get()) }
 }
