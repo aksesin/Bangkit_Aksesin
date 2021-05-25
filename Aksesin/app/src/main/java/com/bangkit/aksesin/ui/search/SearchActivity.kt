@@ -14,6 +14,7 @@ import com.bangkit.aksesin.databinding.ActivitySearchBinding
 import com.bangkit.aksesin.ui.adapter.SearchPlacesAdapter
 import com.bangkit.aksesin.ui.base.BaseActivity
 import com.bangkit.aksesin.ui.home.HomeFragment.Companion.RESULT_SEARCH
+import com.bangkit.aksesin.ui.util.toLatLngString
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ObsoleteCoroutinesApi
@@ -48,8 +49,7 @@ class SearchActivity : BaseActivity<ActivitySearchBinding>() {
 
     private fun searchPlaces() {
         val lastKnownLocation = intent.getParcelableExtra<Location>(EXTRA_CURR_LOCATION)
-        val place = LatLng(lastKnownLocation!!.lat, lastKnownLocation.lng)
-        val getPlace = "${place.latitude}, ${place.longitude}"
+        val userLocation = LatLng(lastKnownLocation!!.lat, lastKnownLocation.lng).toLatLngString()
         var job: Job? = null
         binding.svLocation.onActionViewExpanded()
         binding.svLocation.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -62,7 +62,7 @@ class SearchActivity : BaseActivity<ActivitySearchBinding>() {
                 job = lifecycleScope.launch {
                     delay(500)
                     binding.progressBar.visibility = View.VISIBLE
-                    subscribeToObserver(newText, getPlace)
+                    subscribeToObserver(newText, userLocation)
                 }
                 return true
             }

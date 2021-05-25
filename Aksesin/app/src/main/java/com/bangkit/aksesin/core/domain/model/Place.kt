@@ -5,7 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 
 data class Place(
-    val desc: String? = "",
+    val locationName: String? = "",
 
     val distanceMeters: Int = 0,
 

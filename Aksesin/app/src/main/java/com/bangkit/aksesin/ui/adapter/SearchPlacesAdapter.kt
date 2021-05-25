@@ -11,7 +11,7 @@ class SearchPlacesAdapter : BaseAdapter<Place>(R.layout.item_location) {
         val place = data[position]
         val binding = ItemLocationBinding.bind(holder.itemView)
         with(binding) {
-            tvTitleLocation.text = place.desc
+            tvTitleLocation.text = place.locationName
             tvDistance.text = place.distanceMeters.toKmString()
             tvDescLocation.text = place.address
 
