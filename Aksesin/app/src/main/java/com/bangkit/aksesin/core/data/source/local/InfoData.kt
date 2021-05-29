@@ -1,8 +1,10 @@
-package com.bangkit.aksesin.core.domain.model
+package com.bangkit.aksesin.core.data.source.local
+
+import com.bangkit.aksesin.core.domain.model.Info
 
 object InfoData {
 
-    fun generateInfoCredits() :List<Info> {
+    fun generateInfoCredits(): List<Info> {
 
         val credits = ArrayList<Info>()
 

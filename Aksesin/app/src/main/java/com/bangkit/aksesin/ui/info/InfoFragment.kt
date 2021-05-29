@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bangkit.aksesin.core.domain.model.InfoViewModel
 import com.bangkit.aksesin.databinding.FragmentInfoBinding
 import com.bangkit.aksesin.ui.adapter.InfoAdapter
 import com.bangkit.aksesin.ui.base.BaseFragment
