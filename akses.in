@@ -1,9 +1,0 @@
-import tensoflow as tf
-import keras
-import math
-import numpy as np
-import matplotlib as plt
-import panda as pd
-from keras.models import Sequential
-from keras.layers import Dense
-%matplotlib inline
