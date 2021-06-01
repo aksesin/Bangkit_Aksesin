@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "441912363113",
+    "project_id": "cryptic-genre-314114",
+    "storage_bucket": "cryptic-genre-314114.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:441912363113:android:a9925de983c6e587273af8",
+        "android_client_info": {
+          "package_name": "com.bangkit.aksesin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "441912363113-qv3d46f06j0su5kmj28dea81ik26a2c6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQbWo55FzYXJlil3mB5xzmMD9Rn94Dx0g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "441912363113-qv3d46f06j0su5kmj28dea81ik26a2c6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
